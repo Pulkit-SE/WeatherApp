@@ -46,6 +46,7 @@ export const styles = createThemedStyles(colors => ({
   weatherText: {
     fontSize: 16,
     color: colors.placeholderText,
+    maxWidth: '60%',
   },
   secondRow: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
-import {Text, View} from 'react-native';
+import {Image, Platform, Text, View} from 'react-native';
 import FastImage from 'react-native-fast-image';
 
 import {styles} from './styles';
@@ -46,14 +46,23 @@ const CityWeatherCard = ({data, colors}: TCityWeatherCard) => {
               <Text style={themedStyles.tempText}>{data?.temperature}</Text>
               <Text style={themedStyles.unitText}>° C</Text>
             </View>
-            <Text style={themedStyles.weatherText}>{data?.weatherType}</Text>
+            <Text style={themedStyles.weatherText} numberOfLines={1}>{data?.weatherType}</Text>
           </View>
-          <FastImage
-            source={{
-              uri: weatherImage,
-            }}
-            style={themedStyles.imgStyle}
-          />
+          {Platform.OS === 'android' ? (
+            <FastImage
+              source={{
+                uri: weatherImage,
+              }}
+              style={themedStyles.imgStyle}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: weatherImage,
+              }}
+              style={themedStyles.imgStyle}
+            />
+          )}
         </View>
       </View>
     </View>
