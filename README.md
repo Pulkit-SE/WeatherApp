@@ -1,4 +1,4 @@
-<img width="352" alt="Screenshot 2025-05-08 at 12 43 48 AM" src="https://github.com/user-attachments/assets/86fbe6f3-f963-499f-ae06-2d211cb7f654" />This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # What this project has
 
