@@ -1,4 +1,10 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<img width="352" alt="Screenshot 2025-05-08 at 12 43 48 AM" src="https://github.com/user-attachments/assets/86fbe6f3-f963-499f-ae06-2d211cb7f654" />This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+
+# What this project has
+
+
+https://github.com/user-attachments/assets/809f8e3e-5410-40d3-8777-d8e81c825865
+
 
 # Getting Started
 
@@ -95,3 +101,6 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+
+  
