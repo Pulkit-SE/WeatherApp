@@ -12,5 +12,5 @@ export const styles = createThemedStyles(colors => ({
     color: colors.text,
     fontSize: 20,
     fontWeight: '600',
-  }
+  },
 }));

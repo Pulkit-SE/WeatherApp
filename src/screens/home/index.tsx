@@ -7,29 +7,30 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
-  Alert,
   TextInput,
 } from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import isEmpty from 'lodash.isempty';
+
 import Header from '../../components/header';
 import LocationDisplay from './locationDisplay';
 import CurrentWeather from './currentWeather';
 import HourlyForecast from './forecast/hourly';
 import WeeklyForecast from './forecast/weekly';
+import EmptyWidget from './emptyWidget';
+
 import {WeatherData} from '../../utils/types/weathers';
 import {fetchWeatherData} from '../../utils/api';
 import {styles} from './styles';
 import {useTheme} from '../../utils/hooks/useTheme';
 import {updateTheme} from '../../redux/actions/userActions';
-import {useDispatch, useSelector} from 'react-redux';
-import isEmpty from 'lodash.isempty';
-import EmptyWidget from './emptyWidget';
-import {setWeatherData} from '../../redux/actions/weatherActions';
 import {RootState} from '../../redux/store';
+import {setWeatherData} from '../../redux/actions/weatherActions';
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [cityName, setCityName] = useState<string>(''); // Default city
+  const [cityName, setCityName] = useState<string>('');
   const {weatherData} = useSelector((state: RootState) => state.weather) as {
     weatherData: WeatherData;
   };
@@ -51,7 +52,6 @@ const App = () => {
     } catch (err) {
       setError('Failed to fetch weather data');
       setLoading(false);
-      Alert.alert('Error', 'Failed to load weather data');
     }
   };
 
@@ -92,15 +92,22 @@ const App = () => {
         </View>
         {!loading && !error && !isEmpty(weatherData) && (
           <>
-            <LocationDisplay city={weatherData.location.name} />
+            <LocationDisplay city={weatherData.location.name} colors={colors} />
             <CurrentWeather
               temperature={weatherData.current.temperature}
               condition={weatherData.current.weather_descriptions[0]}
               minTemp={weatherData.forecast.today.minTemp}
               maxTemp={weatherData.forecast.today.maxTemp}
+              colors={colors}
             />
-            <HourlyForecast hourlyData={weatherData.forecast.today.hourly} />
-            <WeeklyForecast dailyData={weatherData.forecast.daily} />
+            <HourlyForecast
+              hourlyData={weatherData.forecast.today.hourly}
+              colors={colors}
+            />
+            <WeeklyForecast
+              dailyData={weatherData.forecast.daily}
+              colors={colors}
+            />
           </>
         )}
         {isEmpty(weatherData) && !error && !loading && (

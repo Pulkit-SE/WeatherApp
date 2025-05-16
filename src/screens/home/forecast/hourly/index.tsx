@@ -1,35 +1,46 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
-import {HourlyForecast as HourlyForecastType} from '../../../../utils/types/weathers';
+import {View, Text, FlatList} from 'react-native';
+
 import WeatherIcon from '../../../../components/icon';
 
-interface HourlyForecastProps {
-  hourlyData: HourlyForecastType[];
-}
+import {HourlyForecast as HourlyForecastType} from '../../../../utils/types/weathers';
+import {styles} from './styles';
 
-const HourlyForecast: React.FC<HourlyForecastProps> = ({hourlyData}) => {
+type HourlyForecastProps = {
+  hourlyData: HourlyForecastType[];
+  colors: Record<string, string>;
+};
+
+const HourlyForecast: React.FC<HourlyForecastProps> = ({
+  hourlyData,
+  colors,
+}) => {
+  const themedStyles = styles(colors);
+
   const renderItem = ({item}: {item: HourlyForecastType}) => {
     return (
-      <View style={styles.hourItem}>
-        <Text style={styles.timeText}>{item.time}</Text>
+      <View style={themedStyles.hourItem}>
+        <Text style={themedStyles.timeText}>{item.time}</Text>
         <WeatherIcon type={item.icon} size={32} />
-        <Text style={styles.tempText}>{item.temp}°</Text>
-        <View style={styles.windContainer}>
-          <Text style={styles.windIcon}>💨</Text>
-          <Text style={styles.windText}>{item.wind} km/h</Text>
+        <Text style={themedStyles.tempText}>{item.temp}°</Text>
+        <View style={themedStyles.windContainer}>
+          <Text style={themedStyles.windIcon}>💨</Text>
+          <Text style={themedStyles.windText}>{item.wind} km/h</Text>
         </View>
-        <View style={styles.precipitationContainer}>
-          <Text style={styles.umbrellaIcon}>☔️</Text>
-          <Text style={styles.precipitationText}>{item.precipitation}%</Text>
+        <View style={themedStyles.precipitationContainer}>
+          <Text style={themedStyles.umbrellaIcon}>☔️</Text>
+          <Text style={themedStyles.precipitationText}>
+            {item.precipitation}%
+          </Text>
         </View>
       </View>
     );
   };
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Forecast for today</Text>
+    <View style={themedStyles.container}>
+      <Text style={themedStyles.title}>Forecast for today</Text>
       <FlatList
-        contentContainerStyle={styles.forecastContainer}
+        contentContainerStyle={themedStyles.forecastContainer}
         data={hourlyData}
         renderItem={renderItem}
         horizontal
@@ -37,68 +48,5 @@ const HourlyForecast: React.FC<HourlyForecastProps> = ({hourlyData}) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 24,
-    paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    marginBottom: 12,
-    fontFamily: 'System',
-  },
-  forecastContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(30, 30, 30, 0.7)',
-    borderRadius: 12,
-    padding: 16,
-  },
-  hourItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  timeText: {
-    color: '#FFFFFF',
-    marginBottom: 8,
-    fontFamily: 'System',
-  },
-  tempText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginVertical: 8,
-    fontFamily: 'System',
-  },
-  windContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  windIcon: {
-    fontSize: 16,
-    marginRight: 4,
-  },
-  windText: {
-    color: '#CCCCCC',
-    fontSize: 12,
-    fontFamily: 'System',
-  },
-  precipitationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  umbrellaIcon: {
-    fontSize: 16,
-    marginRight: 4,
-  },
-  precipitationText: {
-    color: '#3b68c7',
-    fontSize: 12,
-    fontFamily: 'System',
-  },
-});
 
 export default HourlyForecast;

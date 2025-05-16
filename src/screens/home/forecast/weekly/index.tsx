@@ -1,32 +1,37 @@
 // components/WeeklyForecast.tsx
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {DailyForecast} from '../../../../utils/types/weathers';
+import {View, Text} from 'react-native';
+
 import WeatherIcon from '../../../../components/icon';
 
-interface WeeklyForecastProps {
-  dailyData: DailyForecast[];
-}
+import {DailyForecast} from '../../../../utils/types/weathers';
+import {styles} from './styles';
 
-const WeeklyForecast: React.FC<WeeklyForecastProps> = ({dailyData}) => {
+type WeeklyForecastProps = {
+  dailyData: DailyForecast[];
+  colors: Record<string, string>;
+};
+
+const WeeklyForecast: React.FC<WeeklyForecastProps> = ({dailyData, colors}) => {
+  const themedStyles = styles(colors);
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>7-day forecast</Text>
-      <View style={styles.forecastContainer}>
+    <View style={themedStyles.container}>
+      <Text style={themedStyles.title}>7-day forecast</Text>
+      <View style={themedStyles.forecastContainer}>
         {dailyData.map((day, index) => (
           <View
             key={index}
             style={[
-              styles.dayRow,
-              index === dailyData.length - 1 ? styles.lastDayRow : null,
+              themedStyles.dayRow,
+              index === dailyData.length - 1 ? themedStyles.lastDayRow : null,
             ]}>
-            <Text style={styles.dayText}>{day.day}</Text>
-            <View style={styles.iconContainer}>
+            <Text style={themedStyles.dayText}>{day.day}</Text>
+            <View style={themedStyles.iconContainer}>
               <WeatherIcon type={day.icon} size={24} />
             </View>
-            <View style={styles.temperatureContainer}>
-              <Text style={styles.minTempText}>{day.minTemp}°C</Text>
-              <Text style={styles.maxTempText}>{day.maxTemp}°C</Text>
+            <View style={themedStyles.temperatureContainer}>
+              <Text style={themedStyles.minTempText}>{day.minTemp}°C</Text>
+              <Text style={themedStyles.maxTempText}>{day.maxTemp}°C</Text>
             </View>
           </View>
         ))}
@@ -34,61 +39,5 @@ const WeeklyForecast: React.FC<WeeklyForecastProps> = ({dailyData}) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 24,
-    paddingHorizontal: 16,
-    marginBottom: 32,
-  },
-  title: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    marginBottom: 12,
-    fontFamily: 'System',
-  },
-  forecastContainer: {
-    backgroundColor: 'rgba(30, 30, 30, 0.7)',
-    borderRadius: 12,
-    padding: 16,
-  },
-  dayRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333333',
-  },
-  lastDayRow: {
-    borderBottomWidth: 0,
-  },
-  dayText: {
-    flex: 1,
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'System',
-  },
-  iconContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  temperatureContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  minTempText: {
-    color: '#999999',
-    fontSize: 16,
-    marginRight: 8,
-    fontFamily: 'System',
-  },
-  maxTempText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'System',
-  },
-});
 
 export default WeeklyForecast;

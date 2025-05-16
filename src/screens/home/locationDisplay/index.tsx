@@ -1,37 +1,21 @@
-// components/LocationDisplay.tsx
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text} from 'react-native';
 
-interface LocationDisplayProps {
+import {styles} from './styles';
+
+type LocationDisplayProps = {
   city: string;
-}
+  colors: Record<string, string>;
+};
 
-const LocationDisplay: React.FC<LocationDisplayProps> = ({city}) => {
+const LocationDisplay: React.FC<LocationDisplayProps> = ({city, colors}) => {
+  const themedStyles = styles(colors);
   return (
-    <View style={styles.container}>
-      <Text style={styles.cityName}>{city}</Text>
-      <Text style={styles.dayLabel}>Today</Text>
+    <View style={themedStyles.container}>
+      <Text style={themedStyles.cityName}>{city}</Text>
+      <Text style={themedStyles.dayLabel}>Today</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  cityName: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontFamily: 'System',
-  },
-  dayLabel: {
-    fontSize: 18,
-    color: '#999999',
-    marginTop: 4,
-    fontFamily: 'System',
-  },
-});
 
 export default LocationDisplay;

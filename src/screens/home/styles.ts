@@ -1,4 +1,3 @@
-import { Dimensions } from 'react-native';
 import {createThemedStyles} from '../../utils/theme/createThemedStyles';
 
 export const styles = createThemedStyles(colors => ({

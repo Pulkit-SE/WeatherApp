@@ -1,21 +1,27 @@
-// components/CurrentWeather.tsx
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text} from 'react-native';
+
 import WeatherIcon from '../../../components/icon';
 
-interface CurrentWeatherProps {
+import {styles} from './styles';
+
+type CurrentWeatherProps = {
   temperature: number;
   condition: string;
   minTemp: number;
   maxTemp: number;
-}
+  colors: Record<string, string>;
+};
 
 const CurrentWeather: React.FC<CurrentWeatherProps> = ({
   temperature,
   condition,
   minTemp,
   maxTemp,
+  colors,
 }) => {
+  const themedStyles = styles(colors);
+
   // Map condition text to icon type
   const mapConditionToIcon = (conditionText: string): string => {
     const lowerCondition = conditionText.toLowerCase();
@@ -62,53 +68,18 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.temperature}>{temperature}°C</Text>
-      <View style={styles.conditionContainer}>
+    <View style={themedStyles.container}>
+      <Text style={themedStyles.temperature}>{temperature}°C</Text>
+      <View style={themedStyles.conditionContainer}>
         <WeatherIcon type={mapConditionToIcon(condition)} size={30} />
-        <Text style={styles.condition}>{condition}</Text>
+        <Text style={themedStyles.condition}>{condition}</Text>
       </View>
-      <View style={styles.separator} />
-      <Text style={styles.minMaxTemp}>
+      <View style={themedStyles.separator} />
+      <Text style={themedStyles.minMaxTemp}>
         {minTemp}°C/{maxTemp}°C
       </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  temperature: {
-    fontSize: 80,
-    fontWeight: 'bold',
-    color: '#3b68c7',
-    fontFamily: 'System',
-  },
-  conditionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  condition: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    marginLeft: 8,
-    fontFamily: 'System',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#333333',
-    width: '80%',
-    marginVertical: 16,
-  },
-  minMaxTemp: {
-    fontSize: 16,
-    color: '#CCCCCC',
-    fontFamily: 'System',
-  },
-});
 
 export default CurrentWeather;

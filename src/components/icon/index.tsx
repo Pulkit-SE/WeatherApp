@@ -1,17 +1,19 @@
 // components/WeatherIcon.tsx
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {View, Text} from 'react-native';
 
-interface WeatherIconProps {
+import {styles} from './styles';
+
+type WeatherIconProps = {
   type: string;
   size?: number;
-}
+};
 
-const WeatherIcon: React.FC<WeatherIconProps> = ({ type, size = 24 }) => {
+const WeatherIcon: React.FC<WeatherIconProps> = ({type, size = 24}) => {
   // Helper function to render the weather icon based on the type
   const getWeatherIcon = (iconType: string) => {
     // Using emoji characters similar to the screenshot
-    switch(iconType) {
+    switch (iconType) {
       case 'sunny':
       case 'clear':
         return '☀️';
@@ -38,21 +40,11 @@ const WeatherIcon: React.FC<WeatherIconProps> = ({ type, size = 24 }) => {
 
   return (
     <View style={styles.iconContainer}>
-      <Text style={[styles.icon, { fontSize: size }]}>
+      <Text style={[styles.icon, {fontSize: size}]}>
         {getWeatherIcon(type)}
       </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  iconContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
-    textAlign: 'center',
-  },
-});
 
 export default WeatherIcon;
