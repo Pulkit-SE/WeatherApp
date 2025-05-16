@@ -1,4 +1,3 @@
-// api/weatherService.ts
 import axios from 'axios';
 import Config from 'react-native-config';
 
@@ -14,7 +13,6 @@ const BASE_URL = 'https://api.weatherapi.com/v1';
 // Function to fetch current weather data
 export const fetchWeatherData = async (city: string): Promise<WeatherData> => {
   try {
-    // Forecast endpoint with 3 days of forecast data
     const response = await axios.get(
       `${BASE_URL}/forecast.json?key=${API_KEY}&q=${city}&days=7&aqi=no&alerts=no`,
     );
@@ -119,7 +117,6 @@ export const fetchWeatherData = async (city: string): Promise<WeatherData> => {
 
 // Helper function to map WeatherAPI condition codes to icon names in our app
 const mapWeatherCodeToIcon = (conditionCode: number): string => {
-  // This mapping should be adjusted based on the actual condition codes from WeatherAPI
   // See: https://www.weatherapi.com/docs/weather_conditions.json
   if (conditionCode === 1000) {
     // Clear or Sunny

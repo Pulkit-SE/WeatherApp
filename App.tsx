@@ -17,9 +17,7 @@ function App(): React.JSX.Element {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <SafeAreaView style={styles.container}>
-          <AppNavigation />
-        </SafeAreaView>
+        <AppNavigation />
       </PersistGate>
     </Provider>
   );
