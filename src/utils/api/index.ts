@@ -1,12 +1,14 @@
 // api/weatherService.ts
 import axios from 'axios';
+import Config from 'react-native-config';
+
 import {
   WeatherData,
   HourlyForecast,
   DailyForecast,
 } from '../../utils/types/weathers';
 
-const API_KEY = '1ec1931db2174acca41101717251505'; // Replace with your actual API key
+const API_KEY = Config.WEATHER_API_KEY; // Replace with your actual API key
 const BASE_URL = 'https://api.weatherapi.com/v1';
 
 // Function to fetch current weather data
