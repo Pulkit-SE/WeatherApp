@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   View,
@@ -20,15 +20,19 @@ import {fetchWeatherData} from '../../utils/api';
 import {styles} from './styles';
 import {useTheme} from '../../utils/hooks/useTheme';
 import {updateTheme} from '../../redux/actions/userActions';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import isEmpty from 'lodash.isempty';
 import EmptyWidget from './emptyWidget';
+import {setWeatherData} from '../../redux/actions/weatherActions';
+import {RootState} from '../../redux/store';
 
 const App = () => {
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [cityName, setCityName] = useState<string>(''); // Default city
+  const {weatherData} = useSelector((state: RootState) => state.weather) as {
+    weatherData: WeatherData;
+  };
 
   const {isDarkMode, colors} = useTheme();
   const dispatch = useDispatch();
@@ -41,17 +45,14 @@ const App = () => {
 
       const data = await fetchWeatherData(cityName);
 
-      setWeatherData(data);
+      dispatch(setWeatherData(data));
+
       setLoading(false);
     } catch (err) {
       setError('Failed to fetch weather data');
       setLoading(false);
       Alert.alert('Error', 'Failed to load weather data');
     }
-  };
-
-  const handleRefresh = () => {
-    loadWeatherData();
   };
 
   const handleDarkModeSwitch = () => {
@@ -112,7 +113,7 @@ const App = () => {
             </Text>
             <TouchableOpacity
               style={themedStyles.retryButton}
-              onPress={handleRefresh}>
+              onPress={loadWeatherData}>
               <Text style={themedStyles.retryButtonText}>Retry</Text>
             </TouchableOpacity>
           </View>

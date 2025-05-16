@@ -1,4 +1,4 @@
-import {TWeatherCard} from '../../utils/types/weathers';
+import {WeatherData} from '../../utils/types/weathers';
 import TYPES from '../types';
 
 const initialState = {
@@ -6,7 +6,7 @@ const initialState = {
 };
 
 type TWeatherState = {
-  weatherData: TWeatherCard | {};
+  weatherData: WeatherData | {};
 };
 
 type TWeatherAction = {
