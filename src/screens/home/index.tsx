@@ -1,36 +1,58 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  SafeAreaView,
+  View,
+  StatusBar,
+  ScrollView,
   ActivityIndicator,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  Alert,
+  TextInput,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import isEmpty from 'lodash.isempty';
-
 import Header from '../../components/header';
-import CityWeatherCard from './cityWeatherCard';
+import LocationDisplay from './locationDisplay';
+import CurrentWeather from './currentWeather';
+import HourlyForecast from './forecast/hourly';
+import WeeklyForecast from './forecast/weekly';
+import {WeatherData} from '../../utils/types/weathers';
+import {fetchWeatherData} from '../../utils/api';
+import {styles} from './styles';
+import {useTheme} from '../../utils/hooks/useTheme';
+import {updateTheme} from '../../redux/actions/userActions';
+import {useDispatch} from 'react-redux';
+import isEmpty from 'lodash.isempty';
 import EmptyWidget from './emptyWidget';
 
-import {updateTheme} from '../../redux/actions/userActions';
-import {useTheme} from '../../utils/hooks/useTheme';
-import {styles} from './styles';
-import weatherApi from '../../utils/api';
-import {setWeatherData} from '../../redux/actions/weatherActions';
-import { RootState } from '../../redux/store';
-import { TWeatherCard } from '../../utils/types/weathers';
+const App = () => {
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [cityName, setCityName] = useState<string>(''); // Default city
 
-const HomeScreen = () => {
-  const dispatch = useDispatch();
-  const {weatherData} = useSelector((state: RootState) => state.weather);
   const {isDarkMode, colors} = useTheme();
-
-  const [cityName, setCityName] = React.useState('');
-  const [isNoDataFound, setIsNoDataFound] = React.useState<boolean>(false);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
+  const dispatch = useDispatch();
   const themedStyles = styles(colors);
+
+  const loadWeatherData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await fetchWeatherData(cityName);
+
+      setWeatherData(data);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch weather data');
+      setLoading(false);
+      Alert.alert('Error', 'Failed to load weather data');
+    }
+  };
+
+  const handleRefresh = () => {
+    loadWeatherData();
+  };
 
   const handleDarkModeSwitch = () => {
     dispatch(updateTheme());
@@ -40,67 +62,72 @@ const HomeScreen = () => {
     setCityName(text);
   };
 
-  const handleSearchPress = async () => {
-    setIsLoading(true);
-    const weatherResponse = await weatherApi.getCurrentWeather(cityName);
-
-    if (weatherResponse?.success === false) {
-      setIsNoDataFound(true);
-      setIsLoading(false);
-      return;
-    }
-
-    const data = {
-      cityName: `${weatherResponse?.location?.name}, ${weatherResponse?.location?.country}`,
-      temperature: weatherResponse?.current?.temperature,
-      weatherType: weatherResponse?.current?.weather_descriptions[0],
-    };
-
-    setIsNoDataFound(false);
-    dispatch(setWeatherData(data));
-    setIsLoading(false);
-  };
-
-  const RenderWeatherCard = () => {
-    return isLoading ? (
-      <View style={themedStyles.activity}>
-        <ActivityIndicator size={'large'} />
-      </View>
-    ) : !isEmpty(weatherData) && !isNoDataFound ? (
-      <CityWeatherCard data={weatherData as TWeatherCard} colors={colors} />
-    ) : isNoDataFound ? (
-      <EmptyWidget colors={colors} bottomText={'No city data found!'} />
-    ) : (
-      <EmptyWidget colors={colors} bottomText={'Search city...'} />
-    );
-  };
-
   return (
-    <View style={themedStyles.container}>
-      <Header
-        isDarkMode={isDarkMode}
-        toggleSwitch={handleDarkModeSwitch}
-        title="Weather App"
-        colors={colors}
-      />
-      <View style={themedStyles.rowContainer}>
-        <TextInput
-          placeholder="Search city"
-          style={themedStyles.textInput}
-          placeholderTextColor={colors.placeholderText}
-          onChangeText={handleCityNameChange}
-          value={cityName}
+    <SafeAreaView style={themedStyles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <ScrollView
+        style={themedStyles.scrollView}
+        contentContainerStyle={themedStyles.scrollViewContent}>
+        <Header
+          colors={colors}
+          isDarkMode={isDarkMode}
+          title="Weather App"
+          toggleSwitch={handleDarkModeSwitch}
         />
-        <TouchableOpacity
-          onPress={handleSearchPress}
-          style={themedStyles.searchBtn}
-          disabled={!cityName || isLoading}>
-          <Text style={themedStyles.searchText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-      <RenderWeatherCard />
-    </View>
+        <View style={themedStyles.rowContainer}>
+          <TextInput
+            placeholder="Search city"
+            style={themedStyles.textInput}
+            placeholderTextColor={colors.placeholderText}
+            onChangeText={handleCityNameChange}
+            value={cityName}
+          />
+          <TouchableOpacity
+            onPress={loadWeatherData}
+            style={themedStyles.searchBtn}
+            disabled={!cityName || loading}>
+            <Text style={themedStyles.searchText}>Search</Text>
+          </TouchableOpacity>
+        </View>
+        {!loading && !error && !isEmpty(weatherData) && (
+          <>
+            <LocationDisplay city={weatherData.location.name} />
+            <CurrentWeather
+              temperature={weatherData.current.temperature}
+              condition={weatherData.current.weather_descriptions[0]}
+              minTemp={weatherData.forecast.today.minTemp}
+              maxTemp={weatherData.forecast.today.maxTemp}
+            />
+            <HourlyForecast hourlyData={weatherData.forecast.today.hourly} />
+            <WeeklyForecast dailyData={weatherData.forecast.daily} />
+          </>
+        )}
+        {isEmpty(weatherData) && !error && !loading && (
+          <EmptyWidget colors={colors} bottomText={'No city data found!'} />
+        )}
+        {error && !loading && (
+          <View style={themedStyles.centered}>
+            <Text style={themedStyles.errorText}>
+              {error || 'Something went wrong'}
+            </Text>
+            <TouchableOpacity
+              style={themedStyles.retryButton}
+              onPress={handleRefresh}>
+              <Text style={themedStyles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {loading && (
+          <View style={themedStyles.centered}>
+            <ActivityIndicator size="large" color={colors.text} />
+            <Text style={themedStyles.loadingText}>
+              Loading weather data...
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-export default HomeScreen;
+export default App;

@@ -1,95 +1,149 @@
-// api.ts - Simple WeatherStack API utility file
-
+// api/weatherService.ts
 import axios from 'axios';
+import {
+  WeatherData,
+  HourlyForecast,
+  DailyForecast,
+} from '../../utils/types/weathers';
 
-// WeatherStack API constants
-const WEATHER_API_ENDPOINT = 'https://api.weatherstack.com/current';
-const API_KEY = '0f0888fdd75929f4788406189293ac10';
+const API_KEY = '1ec1931db2174acca41101717251505'; // Replace with your actual API key
+const BASE_URL = 'https://api.weatherapi.com/v1';
 
-// Define weather data interfaces
-interface WeatherResponse {
-  current?: {
-    temperature: number;
-    weather_descriptions: string[];
-    humidity: number;
-    wind_speed: number;
-    wind_dir: string;
-    pressure: number;
-    precip: number;
-    feelslike: number;
-    visibility: number;
-    uv_index: number;
-    observation_time: string;
-  };
-  location?: {
-    name: string;
-    country: string;
-    region: string;
-    lat: string;
-    lon: string;
-    timezone_id: string;
-    localtime: string;
-  };
-  success?: boolean;
-  error?: {
-    code: number;
-    type: string;
-    info: string;
-  };
-}
+// Function to fetch current weather data
+export const fetchWeatherData = async (city: string): Promise<WeatherData> => {
+  try {
+    // Forecast endpoint with 3 days of forecast data
+    const response = await axios.get(
+      `${BASE_URL}/forecast.json?key=${API_KEY}&q=${city}&days=7&aqi=no&alerts=no`,
+    );
+    console.log('API Response:', response.data); // Log the full response for debugging
 
-// Error handler function
-const handleError = (error: any) => {
-  // Network error
-  if (!error.response) {
-    return {
-      success: false,
-      error: 'Network error. Please check your connection.',
-    };
-  }
+    const data = response.data;
 
-  // API error with response
-  return {
-    success: false,
-    error: error.response.data?.error?.info || 'An unknown error occurred',
-  };
-};
+    // Transform the WeatherAPI.com response to match our app's data structure
+    const currentHour = new Date().getHours();
 
-// Weather API
-const weatherApi = {
-  /**
-   * Get current weather for a location
-   * @param query - City name, IP address, or coordinates
-   * @param units - Units of measurement (m = Metric, f = Fahrenheit, s = Scientific)
-   */
-  getCurrentWeather: async (
-    query: string,
-    units: 'm' | 'f' | 's' = 'm',
-  ): Promise<WeatherResponse> => {
-    try {
-      const params = {
-        access_key: API_KEY,
-        query,
-        units,
-      };
+    // Get all hourly forecasts for the next 12 hours
+    const hourlyForecasts: HourlyForecast[] = [];
 
-      const response = await axios.get(WEATHER_API_ENDPOINT, {params});
+    // First, add the current hour as "Now"
+    const currentHourData = data.forecast.forecastday[0].hour.find(
+      (h: any) => new Date(h.time).getHours() === currentHour,
+    );
 
-      if (response.data.error) {
-        return {
-          success: false,
-          error: response.data.error,
-        };
+    if (currentHourData) {
+      hourlyForecasts.push({
+        time: 'Now',
+        temp: currentHourData.temp_c,
+        icon: mapWeatherCodeToIcon(currentHourData.condition.code),
+        wind: currentHourData.wind_kph,
+        precipitation: currentHourData.chance_of_rain,
+      });
+    }
+
+    // Then add the next hours
+    let hoursAdded = 0;
+    let dayIndex = 0;
+    let hourIndex = currentHour + 1;
+
+    // Loop until we have 12 hours of forecast or run out of data
+    while (hoursAdded < 11 && dayIndex < data.forecast.forecastday.length) {
+      // If we've reached the end of the day, move to the next day
+      if (hourIndex >= 24) {
+        dayIndex++;
+        hourIndex = 0;
+        // If we've run out of forecast days, break
+        if (dayIndex >= data.forecast.forecastday.length) break;
       }
 
-      return {
-        ...response.data,
-        success: true,
-      };
-    } catch (error) {
-      return handleError(error);
+      const hourData = data.forecast.forecastday[dayIndex].hour[hourIndex];
+
+      hourlyForecasts.push({
+        time: new Date(hourData.time).getHours() + ':00',
+        temp: hourData.temp_c,
+        icon: mapWeatherCodeToIcon(hourData.condition.code),
+        wind: hourData.wind_kph,
+        precipitation: hourData.chance_of_rain,
+      });
+
+      hourIndex++;
+      hoursAdded++;
     }
-  },
+
+    // Transform forecast data for daily view
+    const dailyForecasts: DailyForecast[] = data.forecast.forecastday.map(
+      (day: any, index: number) => {
+        return {
+          day:
+            index === 0
+              ? 'Today'
+              : new Date(day.date).toLocaleDateString('en-US', {
+                  weekday: 'short',
+                }),
+          icon: mapWeatherCodeToIcon(day.day.condition.code),
+          minTemp: day.day.mintemp_c,
+          maxTemp: day.day.maxtemp_c,
+        };
+      },
+    );
+
+    // Create our app's weather data structure from the API response
+    const transformedData: WeatherData = {
+      location: {
+        name: data.location.name,
+        country: data.location.country,
+      },
+      current: {
+        temperature: data.current.temp_c,
+        weather_descriptions: [data.current.condition.text],
+        feelslike: data.current.feelslike_c,
+      },
+      forecast: {
+        today: {
+          minTemp: data.forecast.forecastday[0].day.mintemp_c,
+          maxTemp: data.forecast.forecastday[0].day.maxtemp_c,
+          hourly: hourlyForecasts,
+        },
+        daily: dailyForecasts,
+      },
+    };
+
+    return transformedData;
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+    throw error;
+  }
 };
 
-export default weatherApi;
+// Helper function to map WeatherAPI condition codes to icon names in our app
+const mapWeatherCodeToIcon = (conditionCode: number): string => {
+  // This mapping should be adjusted based on the actual condition codes from WeatherAPI
+  // See: https://www.weatherapi.com/docs/weather_conditions.json
+  if (conditionCode === 1000) {
+    // Clear or Sunny
+    return 'sunny';
+  } else if (conditionCode >= 1003 && conditionCode <= 1009) {
+    // Cloudy conditions
+    return 'partly-cloudy';
+  } else if (conditionCode >= 1030 && conditionCode <= 1039) {
+    // Foggy, misty
+    return 'fog';
+  } else if (conditionCode >= 1063 && conditionCode <= 1069) {
+    // Patchy rain, light rain
+    return 'light-rain';
+  } else if (conditionCode >= 1180 && conditionCode <= 1195) {
+    // Rain
+    return 'heavy-rain';
+  } else if (conditionCode >= 1210 && conditionCode <= 1225) {
+    // Snow
+    return 'snow';
+  } else if (conditionCode >= 1237 && conditionCode <= 1264) {
+    // Heavy snow, ice, sleet
+    return 'snow-storm';
+  } else if (conditionCode >= 1273 && conditionCode <= 1282) {
+    // Thunderstorms
+    return 'thunderstorm';
+  } else {
+    return 'partly-cloudy'; // Default icon
+  }
+};
