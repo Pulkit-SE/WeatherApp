@@ -16,7 +16,6 @@ export const fetchWeatherData = async (city: string): Promise<WeatherData> => {
     const response = await axios.get(
       `${BASE_URL}/forecast.json?key=${API_KEY}&q=${city}&days=7&aqi=no&alerts=no`,
     );
-    console.log('API Response:', response.data); // Log the full response for debugging
 
     const data = response.data;
 

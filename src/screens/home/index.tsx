@@ -90,7 +90,7 @@ const App = () => {
             <Text style={themedStyles.searchText}>Search</Text>
           </TouchableOpacity>
         </View>
-        {!loading && !error && !isEmpty(weatherData) && (
+        {!loading && !error && !isEmpty(weatherData?.location) && (
           <>
             <LocationDisplay city={weatherData.location.name} colors={colors} />
             <CurrentWeather
@@ -110,7 +110,7 @@ const App = () => {
             />
           </>
         )}
-        {isEmpty(weatherData) && !error && !loading && (
+        {isEmpty(weatherData?.location) && !error && !loading && (
           <EmptyWidget colors={colors} bottomText={'No city data found!'} />
         )}
         {error && !loading && (

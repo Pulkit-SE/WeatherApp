@@ -21,6 +21,7 @@ export const styles = createThemedStyles(colors => ({
   hourItem: {
     alignItems: 'center',
     flex: 1,
+    paddingHorizontal: 12,
   },
   timeText: {
     color: colors.text,
